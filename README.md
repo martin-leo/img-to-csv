@@ -20,3 +20,5 @@ Then simply:
 ```shell
 img_to_csv path/to/image.ext
 ```
+
+The CSV will be saved as <file>.csv in the original image's folder.
