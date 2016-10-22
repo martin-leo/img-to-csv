@@ -4,9 +4,10 @@
 import sys, os, bpy, math
 from os.path import basename
 
-path = 'chemin/vers/le/fichier'
+path = '/Users/username/Desktop/nom_du_fichier.jpg'
 
 def print_status(current, maximum):
+    '''Output progress in terminal output'''
     output = "\ravancement : " + str( int( current / maximum * 100 ) ) + "%"
     sys.stdout.write(output)
     sys.stdout.flush()
@@ -28,24 +29,35 @@ def pixel_values(image, x, y):
     return [ int( pixels[R_pos] * 255), int( pixels[G_pos] * 255), int(  pixels[B_pos] * 255) ]
 
 def main():
-    bpy.ops.image.open(filepath=path)
+    '''Main function'''
+    bpy.ops.image.open(filepath=path) # open file
     for image in bpy.data.images:
         directory = os.path.dirname(image.filepath)
         filename = os.path.splitext(image.filepath)[0].split("/")[-1]
+
+        # using a cursor to display progress
+        progress = bpy.context.window_manager
+        progress.progress_begin(0, 100)
+        # output in the terminal which image we are processing
         print("traitement de" + filename)
+        # opening the csv output file
         file = open(directory+"/"+filename+".csv", "w")
+        # emptying the output file
         file.seek(0)
         file.truncate()
+        # looping through the pixels
         for y in range(image.size[0]):
-            csv_line = "";
+            csv_line = ""; # buffer for line data
             for x in range(image.size[1]):
                 csv_line += str( pixel_values(image, x, y) )
                 if x < image.size[1] - 1:
                     csv_line += "|"
             file.write(csv_line + "\n")
-            print_status(y, image.size[1])
+            print_status(y, image.size[0])
+            progress.progress_update( y / image.size[0] * 100 )
         file.close()
         print_status(1,1)
+        progress.progress_end()
         print("\n")
 
 main()
